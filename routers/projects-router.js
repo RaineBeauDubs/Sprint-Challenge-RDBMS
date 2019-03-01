@@ -40,12 +40,34 @@ router.get('/:id', (req, res) => {
 })
 
 router.get('/:id/actions', (req, res) => {
+  const { id } = req.params
   db('projects')
-    .innerJoin('actions', 'project_id', '=', 'actions.project_id')
-    .then(actions => {
+    .where('projects.id', id)
+    .then(project => {
+      const displayedProject = project[0]
+      db('actions')
+        .select(
+          'actions.id',
+          'actions.discription',
+          'actions.additional_notes',
+          'actions.completed'
+        )
+        .where('actions.project_id', id)
+        .then(actions => {
+          res
+            .json({
+              id: displayedProject.id,
+              name: displayedProject.name,
+              discription: displayedProject.discription,
+              complete: displayedProject.complete,
+              actions: actions
+            })
+        })
+    })
+    .catch(error => {
       res
-        .status(200)
-        .json(actions)
+        .status(500)
+        .json(error)
     })
 })
 
