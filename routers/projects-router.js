@@ -5,6 +5,8 @@ const knexConfig = require('../knexfile');
 
 const db = knex(knexConfig.development)
 
+// GET REQUESTS
+
 router.get('/', (req, res) => {
   db('projects')
     .then(projects => {
@@ -47,6 +49,8 @@ router.get('/:id/actions', (req, res) => {
     })
 })
 
+// POST REQUEST
+
 router.post('/', (req, res) => {
   db('projects')
     .insert(req.body)
@@ -65,6 +69,68 @@ router.post('/', (req, res) => {
       res
         .status(500)
         .json(error);
+    })
+});
+
+// UPDATE REQUEST
+
+router.put('/:id', (req, res) => {
+  db('projects')
+    .where({ 
+      id: req.params.id 
+    })
+    .update(req.body)
+    .then(response => {
+      if(response > 0) {
+        db('projects')
+          .where({ 
+            id: req.params.id 
+          })
+          .first()
+          .then(response => {
+            res
+              .status(200)
+              .json(response)
+          })
+      } else {
+        res
+          .status(404)
+          .json({ 
+            message: 'Oops! This project was not found!' 
+          })
+      }
+    })
+    .catch(error => {
+      res
+        .status(500)
+        .json(error)
+    })
+});
+
+// DELETE REQUEST
+
+router.delete('/:id', (req, res) => {
+  const id = req.params.id
+  db('projects')
+    .where({ id })
+    .del()
+    .then(count => {
+      if(count > 0) {
+        res
+          .status(204)
+          .end()
+      } else {
+        res
+          .status(404)
+          .json({ 
+            message: 'Oh no, this project was not found!' 
+          })
+      }
+    })
+    .catch(error => {
+      res
+        .status(500)
+        .json(error)
     })
 });
 
