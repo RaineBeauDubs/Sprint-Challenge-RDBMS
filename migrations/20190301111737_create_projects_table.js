@@ -5,7 +5,7 @@ exports.up = function(knex, Promise) {
 
     tbl
       .string('name', 128)
-      .nitNullable()
+      .notNullable()
       .unique()
 
     tbl
